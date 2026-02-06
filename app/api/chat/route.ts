@@ -17,10 +17,19 @@ export async function POST(req: Request) {
       );
     }
 
-    const response = await client.responses.create({
-      model: "gpt-5-mini",
-      input: message,
-    });
+ const response = await client.responses.create({
+  model: "gpt-5-mini",
+  input: [
+    {
+      role: "system",
+      content: "You are KLYP AI, a helpful AI assistant. Always respond ONLY in English, regardless of the user's language."
+    },
+    {
+      role: "user",
+      content: message
+    }
+  ],
+});
 
     return NextResponse.json({
       reply: response.output_text,
