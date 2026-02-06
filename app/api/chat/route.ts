@@ -1,16 +1,34 @@
 import { NextResponse } from "next/server";
+import OpenAI from "openai";
+
+const client = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
 
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const message = body?.message ?? "";
+    const message = body.message;
+
+    if (!message) {
+      return NextResponse.json(
+        { error: "No message provided" },
+        { status: 400 }
+      );
+    }
+
+    const response = await client.responses.create({
+      model: "gpt-5-mini",
+      input: message,
+    });
 
     return NextResponse.json({
-      reply: `✅ KLYP AI este activ. Mesaj primit: ${message}`,
+      reply: response.output_text,
     });
-  } catch (e) {
+  } catch (error) {
+    console.error("OpenAI error:", error);
     return NextResponse.json(
-      { error: "Eroare server" },
+      { error: "OpenAI request failed" },
       { status: 500 }
     );
   }
